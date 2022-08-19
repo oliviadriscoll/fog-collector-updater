@@ -13,6 +13,7 @@ SPREADSHEET_ID = "1e_qMx2egdqsUFI_46u0JW1daivNzeVteudA5BwY-8oM"
 DEVICE_SN = "z6-07496"
 
 
+# Returns: [[port 1 timestamps], [port 1 values], [port 2 timestamps], [port 2 values], ...]
 def query_zentra(token):
     url = "https://zentracloud.com/api/v3/get_readings/"
     headers = {"content-type": "application/json", "Authorization": token}
@@ -31,6 +32,18 @@ def query_zentra(token):
     response = requests.get(url, params=params, headers=headers)
     print("decoding...")
     data = json.loads(response.content)["data"]["Precipitation"]
+
+    result = []
+    for port_data in data:
+        readings = port_data["readings"]
+        times = []
+        values = []
+        for reading in readings:
+            times.append(reading["timestamp_utc"])
+            values.append(reading["value"])
+        result.append(times)
+        result.append(values)
+    return result
 
 
 def main():
