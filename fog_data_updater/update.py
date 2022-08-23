@@ -16,13 +16,9 @@ DEVICE_SN = "z6-07496"
 
 
 # Returns: [[port 1 timestamps], [port 1 values], [port 2 timestamps], [port 2 values], ...]
-def query_zentra(token):
+def query_zentra_one(token, start_date, end_date, page_num, per_page):
     url = "https://zentracloud.com/api/v3/get_readings/"
-    headers = {"content-type": "application/json", "Authorization": token}
-    end_date = datetime.datetime.today()
-    start_date = end_date - datetime.timedelta(days=4)
-    page_num = 1
-    per_page = 5
+    headers = {"content-type": "application/json", "Authorization": f"Token {token}"}
     params = {
         "device_sn": DEVICE_SN,
         "start_date": start_date,
@@ -30,10 +26,18 @@ def query_zentra(token):
         "page_num": page_num,
         "per_page": per_page,
     }
-    print("fetching...")
     response = requests.get(url, params=params, headers=headers)
-    print("decoding...")
-    data = json.loads(response.content)["data"]["Precipitation"]
+    return json.loads(response.content)
+
+
+# end_date = datetime.datetime.today()
+# start_date = end_date - datetime.timedelta(days=4)
+
+
+def query_zentra_all(token, start_date, end_date):
+    page_num = 1
+    per_page = 5
+    data = query_zentra_one(token, start_date, end_date, page_num, per_page)["data"]["Precipitation"]
 
     result = []
     for port_data in data:
@@ -48,30 +52,8 @@ def query_zentra(token):
     return result
 
 
-"""
-[10, 20, 30] -> [20, 40, 60]
-
-result = []
-for x in arr:
-    result.append(x * 2)
-
-result = [x * 2 for x in arr]
-"""
-
-
 def cell_update_from_data(data):
-    return [
-        {"values": [{"userEnteredValue": {"numberValue": value}} for value in row]}
-        for row in data
-    ]
-
-    result = []
-    for row in data:
-        row_result = []
-        for value in row:
-            row_result.append({"userEnteredValue": {"numberValue": value}})
-        result.append({"values": row_result})
-    return result
+    return [{"values": [{"userEnteredValue": {"numberValue": value}} for value in row]} for row in data]
 
 
 def main():
