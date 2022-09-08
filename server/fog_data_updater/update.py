@@ -16,7 +16,7 @@ import requests
 
 SPREADSHEET_ID = "1e_qMx2egdqsUFI_46u0JW1daivNzeVteudA5BwY-8oM"
 DEVICE_SN = "z6-07496"
-REQUEST_INTERVAL = 1  # in days
+REQUEST_INTERVAL = 7  # in days
 ZENTRA_RATE_LIMIT = 60  # in seconds
 
 
